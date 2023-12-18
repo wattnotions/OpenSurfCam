@@ -11,6 +11,7 @@ remote_server = "18.201.217.84"  # Change to your remote server hostname/IP
 remote_port = 22  # Default SFTP port
 remote_username = "bitnami"  # Change to your remote username
 remote_directory = "/home/bitnami/videos"  # Change to your desired remote directory
+pem_file_path = "/home/pi/OpenSurfCam/key.pem"  # Path to your .pem file
 
 # Initialize the camera
 with picamera.PiCamera() as camera:
@@ -26,11 +27,15 @@ with picamera.PiCamera() as camera:
     # Stop recording
     camera.stop_recording()
 
-# Upload the video to the remote server using SFTP
-transport = paramiko.Transport((remote_server, remote_port))
-transport.connect(username="bitnami")
+# Use the private key from the .pem file for authentication
+private_key = paramiko.RSAKey.from_private_key_file(pem_file_path)
 
-sftp = transport.open_sftp()
+# Establish a connection to the server
+transport = paramiko.Transport((remote_server, remote_port))
+transport.connect(username=remote_username, pkey=private_key)
+
+# Open an SFTP session
+sftp = transport.open_sftp_client()
 sftp.put(output_filename, f"{remote_directory}/{output_filename}")
 
 # Close the SFTP connection

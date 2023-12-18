@@ -51,3 +51,11 @@ sftp.close()
 transport.close()
 
 print(f"File upload complete. Video uploaded to {remote_directory}/{output_filename}")
+
+# Code to delete the file after uploading
+if os.path.exists(output_filename):
+    os.remove(output_filename)
+    print(f"File {output_filename} has been deleted.")
+else:
+    print(f"File {output_filename} does not exist or has already been deleted.")
+
